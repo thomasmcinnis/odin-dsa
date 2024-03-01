@@ -123,11 +123,11 @@ class LinkedList {
 }
 
 class HashMap {
-  // TODO: Make some load factor function to adjust size of array
   #loadFactor = 0.75;
-  #capacity = 16;
+  #size = 16;
+  #nodeCount = 0;
 
-  #buckets = new Array(this.#capacity);
+  #buckets = new Array(this.#size);
 
   #hash(key) {
     let hashCode = 0;
@@ -137,20 +137,33 @@ class HashMap {
       hashCode = prime * hashCode + key.charCodeAt(i);
     }
 
-    const index = hashCode % this.#capacity;
+    const index = hashCode % this.#size;
 
-    if (index < 0 || index >= this.#capacity) {
-      throw new Error("Out of range");
-    }
     return index;
   }
 
+  #doubleSize() {
+    const data = this.entries();
+
+    this.#size *= 2;
+    this.#buckets = new Array(this.#size);
+
+    data.forEach((entry) => {
+      this.set(entry[0], entry[1]);
+    });
+  }
+
   set(key, val) {
+    if (this.#nodeCount > this.#size * this.#loadFactor) {
+      this.#doubleSize();
+    }
+
     const index = this.#hash(key);
 
     if (this.#buckets[index] == null) {
       this.#buckets[index] = new LinkedList();
       this.#buckets[index].prepend(key, val);
+      this.#nodeCount++;
       return;
     }
     const bucket = this.#buckets[index];
@@ -160,6 +173,7 @@ class HashMap {
       bucket.updateAt(nodeIndex, val);
     } else {
       bucket.prepend(key, val);
+      this.#nodeCount++;
     }
   }
 
@@ -200,6 +214,7 @@ class HashMap {
     if (nodeIndex == null) return false;
 
     bucket.removeAt(nodeIndex);
+    this.#nodeCount--;
     return true;
   }
 
@@ -218,7 +233,9 @@ class HashMap {
 
   clear() {
     // remove all the stored keys in the hash map
-    this.#buckets.fill(undefined);
+    this.#size = 16;
+    this.#buckets = new Array(this.#size);
+    this.#nodeCount = 0;
   }
 
   keys() {

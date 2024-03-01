@@ -147,10 +147,14 @@ class HashMap {
 
     this.#size *= 2;
     this.#buckets = new Array(this.#size);
+    console.log("Size increased. Here is the buckets state:", this.#buckets);
+    this.#nodeCount = 0;
 
     data.forEach((entry) => {
       this.set(entry[0], entry[1]);
     });
+
+    console.log(this.#buckets);
   }
 
   set(key, val) {
@@ -289,3 +293,33 @@ class HashMap {
 }
 
 const hashMap = new HashMap();
+
+// Set key-value pairs
+hashMap.set("one", "First Value");
+hashMap.set("two", "Second Value");
+hashMap.set("three", "Third Value");
+
+// Print the entries
+console.log(hashMap.entries());
+
+// Set a key-value pair
+hashMap.set("one", "First Value");
+
+// Print the entries before clearing
+console.log("Before clear: ");
+console.log(hashMap.entries());
+
+// Clear the HashMap
+hashMap.clear();
+
+// Print the entries after clearing to check results
+console.log("After clear: ");
+console.log(hashMap.entries());
+
+// Assuming the initial size of HashMap is 16
+for (let i = 0; i <= 20; i++) {
+  hashMap.set(`Key${i}`, `Value${i}`);
+}
+
+// Print the entries
+console.log(hashMap.entries());

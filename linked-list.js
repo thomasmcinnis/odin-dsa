@@ -38,7 +38,6 @@ class LinkedList {
             size++;
         }
         return size;
-        
     }
 
     getTail() {

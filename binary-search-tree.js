@@ -141,26 +141,6 @@ function deleteNode(root, value) {
     return root;
 }
 
-// Level order (breadth first) traversal
-function traverseByLevel(queue, callback) {
-    if (queue.length === 0) {
-        return;
-    }
-
-    const curr = queue.deque();
-    callback(curr.value);
-
-    if (curr.left !== null) {
-        queue.enqueue(curr.left);
-    }
-
-    if (curr.right !== null) {
-        queue.enqueue(curr.right);
-    }
-
-    traverseByLevel(queue, callback);
-}
-
 function levelOrder(root, arr = []) {
     // This doesn't have to be recursive
     const queue = new Queue();
@@ -192,7 +172,7 @@ function levelOrder(root, arr = []) {
 }
 
 // Pre, post, in-order depth first searching
-function inOrder(curr, pathArr) {
+function inOrder(curr, pathArr = []) {
     if (!curr) {
         return pathArr;
     }
@@ -204,7 +184,7 @@ function inOrder(curr, pathArr) {
     return pathArr;
 }
 
-function preOrder(curr, pathArr) {
+function preOrder(curr, pathArr = []) {
     if (!curr) {
         return pathArr;
     }
@@ -216,7 +196,7 @@ function preOrder(curr, pathArr) {
     return pathArr;
 }
 
-function postOrder(curr, pathArr) {
+function postOrder(curr, pathArr = []) {
     if (!curr) {
         return pathArr;
     }
@@ -229,36 +209,78 @@ function postOrder(curr, pathArr) {
 }
 
 // Height function. Returns a nodes greatest leaf distance
-function height(curr, countArr = [], count = 0) {
-    if (!curr) {
-        return;
+function height(curr) {
+    if (curr == null) {
+        return 0;
     }
 
-    count++;
-    countArr.push(count - 1);
-
-    height(curr.left, countArr, count);
-    height(curr.right, countArr, count);
-
-    return Math.max(...countArr);
+    return Math.max(height(curr.left), height(curr.right)) + 1;
 }
 
-function depth(curr, key, count = 0) {
+function depth(curr, value) {
+    // hit a leaf, did not find our value
     if (!curr) {
-        return;
+        return false;
     }
 
-    if (curr.value === key) {
-        console.log(key, 'found');
-        console.log(count);
-        return count;
+    if (curr.value === value) {
+        return 0;
     }
 
-    count++;
-    depth(curr.left, key, count);
-    depth(curr.right, key, count);
+    // continue left or right, if the returned val isnt false, we must have
+    // found the value and returned a number
+    // so increment it and return up the traversal
+    if (value < curr.value) {
+        const left = depth(curr.left, value);
+        if (left !== false) {
+            return left + 1;
+        }
+    }
+    if (value > curr.value) {
+        const right = depth(curr.right, value);
+        if (right !== false) {
+            return right + 1;
+        }
+    }
 
-    return count;
+    // if either of the above received false we end up here, so return
+    // false up the traversal
+    return false;
+}
+
+function isBalanced(curr) {
+    // We hit a leaf and nothing can be unbalanced at a leaf, so return true
+    if (curr == null) {
+        return true;
+    }
+
+    let heightLeft = height(curr.left);
+    let heightRight = height(curr.right);
+    // using abs to make sure it is positive integer
+    const delta = Math.abs(heightLeft - heightRight);
+
+    // Delta has to be less than one
+    // We recurse down left and right and if they all return true we are good
+    if (
+        delta <= 1 &&
+        isBalanced(curr.left) == true &&
+        isBalanced(curr.right) == true
+    ) {
+        return true;
+    }
+
+    // At this point either the curr delta isn't less than one
+    // or one of the child nodes failed, so return false
+    return false;
+}
+
+function rebalance(tree) {
+    // get an array of the tree with a traversal from above
+    // overwrite the tree with a new version using buildtree function
+
+    const treeArr = preOrder(tree.root);
+    tree.root = null;
+    tree.root = buildTree(treeArr, 0, treeArr.length - 1);
 }
 
 // Utility to print the nodes nicely
@@ -288,6 +310,10 @@ const cleanedArr = cleanArray(arr);
 const newTree = new Tree(cleanedArr);
 insertNode(newTree.root, 51);
 console.log(prettyPrint(newTree.root));
-console.log(levelOrder(newTree.root));
-console.log(height(newTree.root));
-console.log(depth(newTree.root, 9));
+// console.log(levelOrder(newTree.root));
+// console.log(height(newTree.root));
+// console.log(depth(newTree.root, 18));
+// console.log(isBalanced(newTree.root));
+rebalance(newTree);
+console.log(prettyPrint(newTree.root));
+console.log(isBalanced(newTree.root));

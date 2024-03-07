@@ -141,6 +141,127 @@ function deleteNode(root, value) {
     return root;
 }
 
+// Level order (breadth first) traversal
+function traverseByLevel(queue, callback) {
+    if (queue.length === 0) {
+        return;
+    }
+
+    const curr = queue.deque();
+    callback(curr.value);
+
+    if (curr.left !== null) {
+        queue.enqueue(curr.left);
+    }
+
+    if (curr.right !== null) {
+        queue.enqueue(curr.right);
+    }
+
+    traverseByLevel(queue, callback);
+}
+
+function levelOrder(root, arr = []) {
+    // This doesn't have to be recursive
+    const queue = new Queue();
+    queue.enqueue(root);
+
+    while (queue.length > 0) {
+        const curr = queue.deque();
+
+        if (curr.left !== null) {
+            queue.enqueue(curr.left);
+        }
+        if (curr.right !== null) {
+            queue.enqueue(curr.right);
+        }
+
+        arr.push(curr.value);
+    }
+    // if (callback) {
+    //     traverseByLevel(queue, callback);
+    // } else {
+    //     const arr = [];
+    //     function add(value) {
+    //         arr.push(value);
+    //     }
+    //     traverseByLevel(queue, add);
+    //     return arr;
+    // }
+    return arr;
+}
+
+// Pre, post, in-order depth first searching
+function inOrder(curr, pathArr) {
+    if (!curr) {
+        return pathArr;
+    }
+
+    inOrder(curr.left, pathArr);
+    pathArr.push(curr.value);
+    inOrder(curr.right, pathArr);
+
+    return pathArr;
+}
+
+function preOrder(curr, pathArr) {
+    if (!curr) {
+        return pathArr;
+    }
+
+    pathArr.push(curr.value);
+    preOrder(curr.left, pathArr);
+    preOrder(curr.right, pathArr);
+
+    return pathArr;
+}
+
+function postOrder(curr, pathArr) {
+    if (!curr) {
+        return pathArr;
+    }
+
+    postOrder(curr.left, pathArr);
+    postOrder(curr.right, pathArr);
+    pathArr.push(curr.value);
+
+    return pathArr;
+}
+
+// Height function. Returns a nodes greatest leaf distance
+function height(curr, countArr = [], count = 0) {
+    if (!curr) {
+        return;
+    }
+
+    count++;
+    countArr.push(count - 1);
+
+    height(curr.left, countArr, count);
+    height(curr.right, countArr, count);
+
+    return Math.max(...countArr);
+}
+
+function depth(curr, key, count = 0) {
+    if (!curr) {
+        return;
+    }
+
+    if (curr.value === key) {
+        console.log(key, 'found');
+        console.log(count);
+        return count;
+    }
+
+    count++;
+    depth(curr.left, key, count);
+    depth(curr.right, key, count);
+
+    return count;
+}
+
+// Utility to print the nodes nicely
 function prettyPrint(root, prefix = '', isLeft = true) {
     if (root === null) {
         return;
@@ -154,27 +275,10 @@ function prettyPrint(root, prefix = '', isLeft = true) {
     }
 }
 
+// Utility to de-dupe and order an aray before using it for a tree
 function cleanArray(array) {
     const deDuped = Array.from(new Set(array));
     return mergeSort(deDuped);
-}
-
-// Messing around with pre and post order depth first searching
-function walk(curr, pathArr) {
-    if (!curr) {
-        return pathArr;
-    }
-
-    pathArr.push(curr.value);
-
-    walk(curr.left, pathArr);
-    walk(curr.right, pathArr);
-
-    return pathArr;
-}
-
-function preOrderSearch(head) {
-    return walk(head, []);
 }
 
 // Make a tree
@@ -182,8 +286,8 @@ const arr = [1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324];
 // const arr = [1, 2, 3, 4, 5, 6, 7];
 const cleanedArr = cleanArray(arr);
 const newTree = new Tree(cleanedArr);
+insertNode(newTree.root, 51);
 console.log(prettyPrint(newTree.root));
-insertNode(newTree.root, 19);
-console.log(prettyPrint(newTree.root));
-deleteNode(newTree.root, 1);
-console.log(prettyPrint(newTree.root));
+console.log(levelOrder(newTree.root));
+console.log(height(newTree.root));
+console.log(depth(newTree.root, 9));

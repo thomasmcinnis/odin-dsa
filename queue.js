@@ -13,7 +13,7 @@ export default class Queue {
     #tail;
 
     constructor() {
-        this.#head = this.#tail = undefined;
+        this.#head = this.#tail = null;
         this.length = 0;
     }
 
@@ -30,13 +30,17 @@ export default class Queue {
 
     deque() {
         if (!this.#head) {
-            return undefined;
+            return null;
         }
 
         this.length--;
 
         const head = this.#head;
-        this.#head = this.#head.next;
+        if (this.length === 0) {
+            this.#tail = this.#head = null;
+        } else {
+            this.#head = this.#head.next;
+        }
 
         return head.value;
     }
